@@ -16,3 +16,10 @@
 const Route = use('Route')
 
 Route.on('/').render('welcome')
+
+Route.on('/home').render('home')
+
+Route.get('/register', 'AuthController.showRegistrationForm').as('register')
+Route.post('/register', 'AuthController.register')
+
+Route.post('/logout', 'AuthController.logout').as('logout')
