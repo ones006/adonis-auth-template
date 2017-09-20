@@ -27,3 +27,6 @@ Route.post('/register', 'AuthController.register')
 Route.get('/login', 'AuthController.showLoginForm').as('login');
 Route.post('/login', 'AuthController.login');
 Route.post('/logout', 'AuthController.logout').as('logout')
+
+// Password Reset Routes...
+Route.get('/password/reset', 'AuthController.showLinkRequestForm').as('password.request');

@@ -95,6 +95,10 @@ class AuthController {
 
 		return response.redirect('/login')
 	}
+
+	async showLinkRequestForm ({ view }) {
+		return view.render('auth/passwords/email');
+	}
 }
 
 module.exports = AuthController
