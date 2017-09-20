@@ -2,38 +2,65 @@
 
 const { validateAll } = use('Validator')
 const User = use('App/Models/User')
-const rules = {
+
+const loginRules = {
+	'email': 'required|string|email|max:254',
+	'password': 'required|string|min:6|accepted'
+}
+
+const loginMessages = {
+	'email.required': 'The email field is required.',
+	'password.required': 'The password field is required.'
+}
+
+const registrationRules = {
 	'username': 'required|string|max:80',
 	'email': 'required|string|email|max:254',
 	'password': 'required|string|min:6|accepted'
 }
 
-const messages = {
+const registrationMessages = {
 	'username.required': 'The name field is required.',
 	'email.required': 'The email field is required.',
 	'password.required': 'The password field is required.'
 }
 
 class AuthController {
+	async showLoginForm ({ view }) {
+		return view.render('auth/login')
+	}
+
+	async login ({ request, response, view, session, auth }) {
+		const validation = await validateAll(request.all(), loginRules, loginMessages)
+
+		if (validation.fails()) {
+			return this.failedValidation(session, response, validation)
+		}
+
+		await this.doLogin(request, auth)
+
+		return response.redirect('/home')
+	}
+
 	async showRegistrationForm ({ view }) {
 		return view.render('auth/register')
 	}
 
 	async register ({ request, response, view, session, auth }) {
-		const validation = await validateAll(request.all(), rules, messages)
+		const validation = await validateAll(request.all(), registrationRules, registrationMessages)
 
 		if (validation.fails()) {
-			return this.failedRegistration(session, response, validation)
+			return this.failedValidation(session, response, validation)
 		}
 
 		await this.addUser(request, User)
 
-		await this.login(request, auth)
+		await this.doLogin(request, auth)
 
 		return response.redirect('/home')
 	}
 
-	failedRegistration (session, response, validation) {
+	failedValidation (session, response, validation) {
 		session
 		.withErrors(validation.messages())
 		.flashExcept(['password'])
@@ -54,7 +81,7 @@ class AuthController {
 	}
 
 
-	async login (request, auth) {
+	async doLogin (request, auth) {
 		const { email, password, remember } = request.all()
 
 		if (request.input('remember', false) !== false) {
@@ -66,7 +93,7 @@ class AuthController {
 	async logout ({ auth, response }) {
 		await auth.logout()
 
-		return response.redirect('/')
+		return response.redirect('/login')
 	}
 }
 

@@ -22,4 +22,7 @@ Route.on('/home').render('home')
 Route.get('/register', 'AuthController.showRegistrationForm').as('register')
 Route.post('/register', 'AuthController.register')
 
+// Authentication Routes...
+Route.get('login', 'AuthController.showLoginForm').as('login');
+Route.post('login', 'AuthController.login');
 Route.post('/logout', 'AuthController.logout').as('logout')
