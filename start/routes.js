@@ -17,12 +17,13 @@ const Route = use('Route')
 
 Route.on('/').render('welcome')
 
-Route.on('/home').render('home')
+Route.on('/home').render('home').middleware(['Auth'])
 
+// Registration Routes...
 Route.get('/register', 'AuthController.showRegistrationForm').as('register')
 Route.post('/register', 'AuthController.register')
 
 // Authentication Routes...
-Route.get('login', 'AuthController.showLoginForm').as('login');
-Route.post('login', 'AuthController.login');
+Route.get('/login', 'AuthController.showLoginForm').as('login');
+Route.post('/login', 'AuthController.login');
 Route.post('/logout', 'AuthController.logout').as('logout')
