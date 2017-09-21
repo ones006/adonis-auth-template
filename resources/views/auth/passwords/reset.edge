@@ -5,30 +5,19 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Register</div>
+                <div class="panel-heading">Reset Password</div>
 
                 <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('register') }}">
+                    <form class="form-horizontal" method="POST" action="{{ route('password.request') }}">
                         {{ csrfField() }}
 
-                        <div class="form-group{{ hasErrorFor('username') ? ' has-error' : '' }}">
-                            <label for="username" class="col-md-4 control-label">Username</label>
-
-                            <div class="col-md-6">
-                                <input id="username" type="text" class="form-control" name="username" value="{{ old('username', '') }}" required autofocus>
-                                @if(hasErrorFor('username'))
-                                    <span class="help-block">
-                                        <strong>{{ getErrorFor('username') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
+                        <input type="hidden" name="token" value="{{ token }}">
 
                         <div class="form-group{{ hasErrorFor('email') ? ' has-error' : '' }}">
                             <label for="email" class="col-md-4 control-label">E-Mail</label>
 
                             <div class="col-md-6">
-                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email', '') }}" required>
+                                <input id="email" type="email" class="form-control" name="email" value="{{ email || old('email') || "" }}" required autofocus>
 
                                 @if(hasErrorFor('email'))
                                     <span class="help-block">
@@ -54,7 +43,6 @@
 
                         <div class="form-group{{ hasErrorFor('password_confirmation') ? ' has-error' : '' }}">
                             <label for="password-confirm" class="col-md-4 control-label">Confirm Password</label>
-
                             <div class="col-md-6">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
 
@@ -69,7 +57,7 @@
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
                                 <button type="submit" class="btn btn-primary">
-                                    Register
+                                    Reset Password
                                 </button>
                             </div>
                         </div>

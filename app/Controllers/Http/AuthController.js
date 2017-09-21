@@ -9,6 +9,20 @@ const resetPassRules = {
 	'email': 'required|string|email|max:254'
 }
 
+const resetRules = {
+	'token': 'required',
+	'email': 'required|email',
+	'password': 'required|string|min:6|accepted',
+	'password_confirmation': 'same:password',
+}
+
+const resetMessages = {
+	'token.required': 'No reset token.',
+	'email.required': 'The email field is required.',
+	'password.required': 'The password field is required.',
+	'password_confirmation.same': 'Must be the same as password.'
+}
+
 const loginRules = {
 	'email': 'required|string|email|max:254',
 	'password': 'required|string|min:6|accepted'
@@ -22,13 +36,15 @@ const loginMessages = {
 const registrationRules = {
 	'username': 'required|string|max:80',
 	'email': 'required|string|email|max:254',
-	'password': 'required|string|min:6|accepted'
+	'password': 'required|string|min:6|accepted',
+	'password_confirmation': 'same:password'
 }
 
 const registrationMessages = {
 	'username.required': 'The name field is required.',
 	'email.required': 'The email field is required.',
-	'password.required': 'The password field is required.'
+	'password.required': 'The password field is required.',
+	'password_confirmation.same': 'Must be the same as password.'
 }
 
 class AuthController {
@@ -102,7 +118,7 @@ class AuthController {
 	}
 
 	async showLinkRequestForm ({ view }) {
-		return view.render('auth/passwords/email');
+		return view.render('auth/passwords/email')
 	}
 
 	async sendResetLink ({ request, response, session }) {
@@ -115,11 +131,11 @@ class AuthController {
 
 		const User = use('App/Models/User')
 		
-		// try {
+		try {
 			await this.sendResetLinkMail (request)
-		// } catch ( error ) {
-		// 	console.log('reset email sending failed')
-		// }
+		} catch ( error ) {
+			console.log('reset email sending failed')
+		}
 
 		return this.resetLinkResponse(session, response)
 	}
@@ -127,17 +143,13 @@ class AuthController {
 	async sendResetLinkMail ( request ) {
 		const user = await User.findByOrFail('email', request.input('email'))
 
-		await user
-		.tokens()
-		.where('type', 'reset_token')
-		.update({ is_revoked: true })
+		await this.revokeResetTokens(user)
 
 		const token = await user.tokens().create({
 			token: 	uuid.v4(),
 			type: 	'reset_token'
 		})
 		Event.fire('user.resetPassword', token)
-
 	}
 
 	resetLinkResponse (session, response) {
@@ -145,6 +157,68 @@ class AuthController {
 		.flash({resetPassMessage: 'If a user exists with that email, a reset link will be sent. Please check your inbox.'})
 
 		return response.redirect('back')
+	}
+
+	async showResetForm ({ view, params }) {
+		return view.render('auth/passwords/reset', params)
+	}
+
+	async reset ({ request, session, response, auth }) {
+		const validation = await validateAll(request.all(), resetRules, resetMessages)
+
+		if (validation.fails()) {
+			return this.failedValidation(session, response, validation)
+		}
+
+		let reset = await this.resetPassword(request)
+
+		if (reset !== true) {
+			session
+			.withErrors({email: 'We could not reset the password for the user with that email.'})
+
+			return response.redirect('back')
+		}
+
+		await this.doLogin(request, auth)
+
+		return response.redirect('/home')
+	}
+
+	async resetPassword(request) {
+
+		try {
+			const user = await User.findByOrFail('email', request.input('email'))
+
+			const token = await user
+			.tokens()
+			.where('type', 'reset_token')
+			.where('is_revoked', false)
+			.where('user_id', user.id) // for some reason, this is necessary
+			.firstOrFail()
+
+			if (token.token !== request.input('token')) {
+				return false
+			}
+
+			await this.revokeResetTokens(user)
+
+			user.password = request.input('password')
+
+			await user.save()
+		
+			return true
+		} catch (error) {
+			return false
+		}
+
+		return true
+	}
+
+	async revokeResetTokens (user) {
+		await user
+		.tokens()
+		.where('type', 'reset_token')
+		.update({ is_revoked: true })
 	}
 }
 
