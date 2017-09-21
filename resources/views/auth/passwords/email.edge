@@ -8,6 +8,11 @@
                 <div class="panel-heading">Reset Password</div>
 
                 <div class="panel-body">
+                    @if(old('resetPassMessage', false))
+                        <div class="alert alert-success">
+                            {{ old('resetPassMessage') }}
+                        </div>
+                    @endif
                     <form class="form-horizontal" method="POST" action="{{ route('password.email') }}">
                         {{ csrfField() }}
 
@@ -15,11 +20,7 @@
                             <label for="email" class="col-md-4 control-label">E-Mail</label>
 
                             <div class="col-md-6">
-                                <input id="email" type="email" class="form-control" name="email" value="" required>
-
-                                <span class="help-block">
-                                    <strong>{{ old('resetPassMessage', '') }}</strong>
-                                </span>
+                                <input id="email" type="email" class="form-control" name="email" value="" required autofocus>
                             </div>
                         </div>
 

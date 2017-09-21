@@ -1,0 +1,16 @@
+[{{ env.appName }}]({{ env.appUrl }})
+
+# Hello{{ " " + user.username, ""}}!
+
+You are receiving this email because we received a password reset request for your account.
+
+Reset Password: {{ env.appUrl }}{{ route('password.reset', { token: token.token }) }}
+
+If you did not request a password reset, no further action is required.
+
+Regards, {{ env.appName }}.
+
+If you’re having trouble clicking the "Reset Password" button, copy and paste the URL below
+into your web browser: [{{ env.appUrl }}{{ route('password.reset', { token: token.token }) }}]({{ env.appUrl }}{{ route('password.reset', { token: token.token }) }})
+
+© 2017 {{ env.appName }}. All rights reserved.

@@ -31,3 +31,4 @@ Route.post('/logout', 'AuthController.logout').as('logout')
 // Password Reset Routes...
 Route.get('/password/reset', 'AuthController.showLinkRequestForm').as('password.request')
 Route.post('/password/email', 'AuthController.sendResetLink').as('password.email')
+Route.get('password/reset/:token', 'AuthController.showResetForm').as('password.reset');

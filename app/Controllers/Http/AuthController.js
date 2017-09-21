@@ -2,7 +2,8 @@
 
 const { validateAll } = use('Validator')
 const User = use('App/Models/User')
-const Mail = use('Mail')
+const Event = use('Event')
+const uuid = use('uuid')
 
 const resetPassRules = {
 	'email': 'required|string|email|max:254'
@@ -114,30 +115,36 @@ class AuthController {
 
 		const User = use('App/Models/User')
 		
-		try {
-			await User.findByOrFail('email', request.input('email'))
-			// await this.sendResetLinkEmail
-		} catch ( error ) {
-
-		}
+		// try {
+			await this.sendResetLinkMail (request)
+		// } catch ( error ) {
+		// 	console.log('reset email sending failed')
+		// }
 
 		return this.resetLinkResponse(session, response)
 	}
 
-	resetLinkResponse (session, response) {
-		session
-		.flash({resetPassMessage: 'If the user exist, a reset link will be sent. Please check your inbox.'})
+	async sendResetLinkMail ( request ) {
+		const user = await User.findByOrFail('email', request.input('email'))
 
-		return response.redirect('back')
+		await user
+		.tokens()
+		.where('type', 'reset_token')
+		.update({ is_revoked: true })
+
+		const token = await user.tokens().create({
+			token: 	uuid.v4(),
+			type: 	'reset_token'
+		})
+		Event.fire('user.resetPassword', token)
+
 	}
 
-	async sendResetLinkEmail (User) {
-		await Mail.send('emails.reset', user.toJSON(), (message) => {
-			message
-			.to(user.email)
-			.from('<from-email>')
-			.subject('Welcome to yardstick')
-		})
+	resetLinkResponse (session, response) {
+		session
+		.flash({resetPassMessage: 'If a user exists with that email, a reset link will be sent. Please check your inbox.'})
+
+		return response.redirect('back')
 	}
 }
 
