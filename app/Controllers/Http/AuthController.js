@@ -2,6 +2,11 @@
 
 const { validateAll } = use('Validator')
 const User = use('App/Models/User')
+const Mail = use('Mail')
+
+const resetPassRules = {
+	'email': 'required|string|email|max:254'
+}
 
 const loginRules = {
 	'email': 'required|string|email|max:254',
@@ -80,7 +85,6 @@ class AuthController {
 		await user.save()
 	}
 
-
 	async doLogin (request, auth) {
 		const { email, password, remember } = request.all()
 
@@ -98,6 +102,42 @@ class AuthController {
 
 	async showLinkRequestForm ({ view }) {
 		return view.render('auth/passwords/email');
+	}
+
+	async sendResetLink ({ request, response, session }) {
+
+		const validation = await validateAll(request.all(), resetPassRules)
+
+		if (validation.fails()) {
+			return this.resetLinkResponse(session, response)
+		}
+
+		const User = use('App/Models/User')
+		
+		try {
+			await User.findByOrFail('email', request.input('email'))
+			// await this.sendResetLinkEmail
+		} catch ( error ) {
+
+		}
+
+		return this.resetLinkResponse(session, response)
+	}
+
+	resetLinkResponse (session, response) {
+		session
+		.flash({resetPassMessage: 'If the user exist, a reset link will be sent. Please check your inbox.'})
+
+		return response.redirect('back')
+	}
+
+	async sendResetLinkEmail (User) {
+		await Mail.send('emails.reset', user.toJSON(), (message) => {
+			message
+			.to(user.email)
+			.from('<from-email>')
+			.subject('Welcome to yardstick')
+		})
 	}
 }
 

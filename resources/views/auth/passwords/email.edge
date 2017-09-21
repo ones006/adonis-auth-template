@@ -11,17 +11,15 @@
                     <form class="form-horizontal" method="POST" action="{{ route('password.email') }}">
                         {{ csrfField() }}
 
-                        <div class="form-group{{ hasErrorFor('email') ? ' has-error' : '' }}">
+                        <div class="form-group">
                             <label for="email" class="col-md-4 control-label">E-Mail</label>
 
                             <div class="col-md-6">
                                 <input id="email" type="email" class="form-control" name="email" value="" required>
 
-                                @if(hasErrorFor('email'))
-                                    <span class="help-block">
-                                        <strong>{{ getErrorFor('email') }}</strong>
-                                    </span>
-                                @endif
+                                <span class="help-block">
+                                    <strong>{{ old('resetPassMessage', '') }}</strong>
+                                </span>
                             </div>
                         </div>
 
