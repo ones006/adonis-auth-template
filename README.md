@@ -1,6 +1,6 @@
-# Adonis fullstack application
+# Adonis auth application
 
-This is the fullstack boilerplate for AdonisJs, it comes pre-configured with.
+This is built on top of the [fullstack boilerplate](https://github.com/adonisjs/adonis-fullstack-app) for AdonisJs which comes pre-configured with.
 
 1. Bodyparser
 2. Session
@@ -11,12 +11,18 @@ This is the fullstack boilerplate for AdonisJs, it comes pre-configured with.
 7. Lucid ORM
 8. Migrations and seeds
 
+It adds user registration, login and authentication. Also inspired by Laravel's `php artisan make:auth`.
+
+1. Users can register on `http://localhost:3333/register`
+2. Users can login on `http://localhost:3333/login`
+3. Users can reset their passwords on `http://localhost:3333/password/reset`
+
 ## Setup
 
 Use the adonis command to install the blueprint
 
 ```bash
-adonis new yardstick
+adonis new app --blueprint=stephenafamo/adonis-auth-template
 ```
 
 or manually clone the repo and then run `npm install`.
